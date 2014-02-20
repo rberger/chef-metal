@@ -28,10 +28,12 @@ module ChefMetal
 
             channel.on_data do |ch2, data|
               stdout << data
+              Chef::Log.info data
             end
 
             channel.on_extended_data do |ch2, type, data|
               stderr << data
+              Chef::Log.info data
             end
 
             channel.on_request "exit-status" do |ch, data|
