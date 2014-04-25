@@ -126,33 +126,34 @@ class ChefMetal::Application < Chef::Application
     exit_code = 0
     case command
     when 'execute'
-      each_machine(cli_arguments.shift) do |machine, provisioner|
+      each_machine(cli_arguments.shift) do |machine, driver|
         result = machine.execute(action_handler, cli_arguments.join(' '), :read_only => config[:read_only], :stream => config[:stream], :timeout => config[:timeout].to_f)
         puts result.stdout if result.stdout != '' && !config[:stream] && Chef::Config.log_level != :debug
         STDERR.puts result.stderr if result.stderr != '' && !config[:stream] && Chef::Config.log_level != :debug
         exit_code = result.exitstatus if result.exitstatus != 0
       end
     when 'converge'
-      each_machine(cli_arguments.shift) do |machine, provisioner|
+      each_machine(cli_arguments.shift) do |machine, driver|
         machine.converge(action_handler, chef_server)
       end
     when 'delete'
-      each_machine(cli_arguments.shift) do |machine, provisioner|
-        provisioner.delete_machine(action_handler, machine.node)
+      each_machine(cli_arguments.shift) do |machine, driver|
+        driver.delete_machine(action_handler, machine.spec)
       end
     when 'update'
-      each_machine(cli_arguments.shift) do |machine, provisioner|
-        machine = provisioner.acquire_machine(action_handler, machine.node)
+      each_machine(cli_arguments.shift) do |machine, driver|
+        driver.allocate_machine(action_handler, machine.spec)
+        machine = driver.ready_machine(action_handler, machine.spec)
         # TODO find out what files were uploaded so we can do it again
         machine.setup_convergence(action_handler)
         machine.converge(action_handler, chef_server)
       end
     when 'stop'
-      each_machine(cli_arguments.shift) do |machine, provisioner|
-        provisioner.stop_machine(action_handler, machine.node)
+      each_machine(cli_arguments.shift) do |machine, driver|
+        driver.stop_machine(action_handler, machine.node)
       end
     when 'cat'
-      each_machine(cli_arguments.shift) do |machine, provisioner|
+      each_machine(cli_arguments.shift) do |machine, driver|
         cli_arguments.each do |remote_path|
           puts machine.read_file(remote_path)
         end

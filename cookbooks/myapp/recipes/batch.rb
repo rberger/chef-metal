@@ -1,13 +1,11 @@
+require 'chef_metal_fog'
+
+with_fog_ec2_driver
+
 with_machine_batch 'the_new_batch'
 
-machine 'batch_a' do
-  action :nothing
-end
-
-machine 'batch_b' do
-  action :nothing
-end
-
-machine 'batch_c' do
-  action :nothing
+1.upto(3) do |i|
+  machine "cookie#{i}" do
+    tag 'chocolate_chip'
+  end
 end

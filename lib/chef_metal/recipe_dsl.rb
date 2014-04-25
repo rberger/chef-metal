@@ -2,12 +2,12 @@ require 'chef_metal'
 
 class Chef
   class Recipe
-    def with_provisioner(provisioner, &block)
-      ChefMetal.with_provisioner(provisioner, &block)
+    def with_driver(driver, &block)
+      ChefMetal.with_driver(driver, &block)
     end
 
-    def with_provisioner_options(provisioner_options, &block)
-      ChefMetal.with_provisioner_options(provisioner_options, &block)
+    def with_machine_options(machine_options, &block)
+      ChefMetal.with_machine_options(machine_options, &block)
     end
 
     def with_machine_batch(the_machine_batch, options = {})

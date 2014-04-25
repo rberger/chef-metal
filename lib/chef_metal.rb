@@ -12,38 +12,38 @@ require 'chef/provider/machine_execute'
 require 'chef_metal/inline_resource'
 
 module ChefMetal
-  def self.with_provisioner(provisioner)
-    old_provisioner = ChefMetal.enclosing_provisioner
-    ChefMetal.enclosing_provisioner = provisioner
+  def self.with_driver(driver)
+    old_driver = ChefMetal.current_driver
+    ChefMetal.current_driver = driver
     if block_given?
       begin
         yield
       ensure
-        ChefMetal.enclosing_provisioner = old_provisioner
+        ChefMetal.current_driver = old_driver
       end
     end
   end
 
-  def self.with_provisioner_options(provisioner_options)
-    old_provisioner_options = ChefMetal.enclosing_provisioner_options
-    ChefMetal.enclosing_provisioner_options = provisioner_options
+  def self.with_machine_options(machine_options)
+    old_machine_options = ChefMetal.current_machine_options
+    ChefMetal.current_machine_options = machine_options
     if block_given?
       begin
         yield
       ensure
-        ChefMetal.enclosing_provisioner_options = old_provisioner_options
+        ChefMetal.current_machine_options = old_machine_options
       end
     end
   end
 
   def self.with_machine_batch(machine_batch)
-    old_machine_batch = ChefMetal.enclosing_machine_batch
-    ChefMetal.enclosing_machine_batch = machine_batch
+    old_machine_batch = ChefMetal.current_machine_batch
+    ChefMetal.current_machine_batch = machine_batch
     if block_given?
       begin
         yield
       ensure
-        ChefMetal.enclosing_machine_batch = old_machine_batch
+        ChefMetal.current_machine_batch = old_machine_batch
       end
     end
   end
@@ -53,54 +53,56 @@ module ChefMetal
     InlineResource.new(action_handler).instance_eval(&block)
   end
 
-  @@enclosing_machine_batch = nil
-  def self.enclosing_machine_batch
-    @@enclosing_machine_batch
+  @@current_machine_batch = nil
+  def self.current_machine_batch
+    @@current_machine_batch
   end
-  def self.enclosing_machine_batch=(machine_batch)
-    @@enclosing_machine_batch = machine_batch
-  end
-
-  @@enclosing_provisioner = nil
-  def self.enclosing_provisioner
-    @@enclosing_provisioner
-  end
-  def self.enclosing_provisioner=(provisioner)
-    @@enclosing_provisioner = provisioner
+  def self.current_machine_batch=(machine_batch)
+    @@current_machine_batch = machine_batch
   end
 
-  @@enclosing_provisioner_options = nil
-  def self.enclosing_provisioner_options
-    @@enclosing_provisioner_options
+  @@current_driver = nil
+  def self.current_driver
+    @@current_driver
+  end
+  def self.current_driver=(driver)
+    @@current_driver = driver
   end
 
-  def self.enclosing_provisioner_options=(provisioner_options)
-    @@enclosing_provisioner_options = provisioner_options
+  @@current_machine_options = nil
+  def self.current_machine_options
+    @@current_machine_options
   end
 
-  # Helpers for provisioner inflation
-  @@registered_provisioner_classes = {}
-  def self.add_registered_provisioner_class(name, provisioner)
-    @@registered_provisioner_classes[name] = provisioner
+  def self.current_machine_options=(machine_options)
+    @@current_machine_options = machine_options
   end
 
-  def self.provisioner_for_node(node)
-    provisioner_url = node['normal']['provisioner_output']['provisioner_url']
-    cluster_type = provisioner_url.split(':', 2)[0]
-    require "chef_metal/provisioner_init/#{cluster_type}_init"
-    provisioner_class = @@registered_provisioner_classes[cluster_type]
-    provisioner_class.inflate(node)
+  # Helpers for driver inflation
+  @@registered_driver_classes = {}
+  def self.add_registered_driver_class(name, driver)
+    @@registered_driver_classes[name] = driver
   end
 
-  def self.connect_to_machine(name)
-    rest = Chef::ServerAPI.new()
-    node = rest.get("/nodes/#{name}")
-    provisioner_output = node['normal']['provisioner_output']
-    if !provisioner_output
+  def self.driver_for_url(url)
+    if !spec.driver_url
       raise "Node #{name} was not provisioned with Metal."
     end
-    provisioner = provisioner_for_node(node)
-    machine = provisioner.connect_to_machine(node)
-    [ machine, provisioner ]
+    cluster_type = spec.driver_url.split(':', 2)[0]
+    begin
+      require "chef_metal/driver_init/#{cluster_type}_init"
+    rescue LoadError
+      Chef::Log.error("Node #{spec.name} registered with driver #{spec.driver_url}, but could not require 'chef_metal/driver_init/#{cluster_type}_init'")
+      raise
+    end
+    driver_class = @@registered_driver_classes[cluster_type]
+    driver_class.new(driver_url)
+  end
+
+  def self.connect_to_machine(name, chef_server = nil)
+    spec = MachineSpec.get(name, chef_server)
+    driver = driver_for_url(spec.driver_url)
+    machine = driver.connect_to_machine(spec)
+    [ machine, driver ]
   end
 end

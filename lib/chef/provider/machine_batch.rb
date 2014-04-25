@@ -25,8 +25,8 @@ class Chef::Provider::MachineBatch < Chef::Provider::LWRPBase
     parallel_do(by_provisioner) do |provisioner, machines|
       nodes_json = machines.map do |machine|
         node_json = node_providers[machine].new_json
-        node_json['normal']['provisioner_options'] = machine.provisioner_options
-        node_json['normal']['provisioner_options'] = node_providers[machine].current_json['normal']['provisioner_output']
+        node_json['normal']['machine_options'] = machine.machine_options
+        node_json['normal']['machine_options'] = node_providers[machine].current_json['normal']['provisioner_output']
         node_json
       end
       if provisioner.respond_to?(:acquire_machines)

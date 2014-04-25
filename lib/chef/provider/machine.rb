@@ -15,7 +15,7 @@ class Chef::Provider::Machine < Chef::Provider::LWRPBase
 
   action :create do
     node_json = node_provider.new_json
-    node_json['normal']['provisioner_options'] = new_resource.provisioner_options
+    node_json['normal']['machine_options'] = new_resource.machine_options
     # Preserve provisioner_output, whatever the cost
     node_json['normal']['provisioner_output'] = node_provider.current_json['normal']['provisioner_output']
     machine = new_resource.provisioner.acquire_machine(self, node_json)
@@ -34,7 +34,7 @@ class Chef::Provider::Machine < Chef::Provider::LWRPBase
 
   action :converge do
     node_json = node_provider.new_json
-    node_json['normal']['provisioner_options'] = new_resource.provisioner_options
+    node_json['normal']['machine_options'] = new_resource.machine_options
     # Preserve provisioner_output, whatever the cost
     node_json['normal']['provisioner_output'] = node_provider.current_json['normal']['provisioner_output']
     machine = new_resource.provisioner.connect_to_machine(node_json)
@@ -47,7 +47,7 @@ class Chef::Provider::Machine < Chef::Provider::LWRPBase
 
   action :stop do
     node_json = node_provider.new_json
-    node_json['normal']['provisioner_options'] = new_resource.provisioner_options
+    node_json['normal']['machine_options'] = new_resource.machine_options
     # Preserve provisioner_output, whatever the cost
     node_json['normal']['provisioner_output'] = node_provider.current_json['normal']['provisioner_output']
     new_resource.provisioner.stop_machine(self, node_json)

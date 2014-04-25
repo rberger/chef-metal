@@ -7,12 +7,12 @@ class Chef::Resource::Machine < Chef::Resource::LWRPBase
 
   def initialize(*args)
     super
-    @chef_environment = Cheffish.enclosing_environment
-    @chef_server = Cheffish.enclosing_chef_server
-    @provisioner = ChefMetal.enclosing_provisioner
-    @provisioner_options = ChefMetal.enclosing_provisioner_options
-    if ChefMetal.enclosing_machine_batch
-      ChefMetal.enclosing_machine_batch.machines << self
+    @chef_environment = Cheffish.current_environment
+    @chef_server = Cheffish.current_chef_server
+    @provisioner = ChefMetal.current_driver
+    @machine_options = ChefMetal.current_machine_options
+    if ChefMetal.current_machine_batch
+      ChefMetal.current_machine_batch.machines << self
     end
   end
 
@@ -26,7 +26,7 @@ class Chef::Resource::Machine < Chef::Resource::LWRPBase
 
   # Provisioner attributes
   attribute :provisioner
-  attribute :provisioner_options
+  attribute :machine_options
 
   # Node attributes
   Cheffish.node_attributes(self)

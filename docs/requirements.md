@@ -67,8 +67,8 @@ Jenna's task is to develop the test.  The first thing she does is get Metal to *
 4. She builds a Metal recipe that describes LXC containers in 'lxc_ubuntu.rb':
    ```ruby
    require 'chef_metal/lxc'
-   with_provisioner ChefMetal::Provisioner::LXC.new
-   with_provisioner_options { :template => 'ubuntu' }
+   with_driver ChefMetal::Provisioner::LXC.new
+   with_machine_options { :template => 'ubuntu' }
    ```
 **Ed.: should we build some kind of default mechanism, or global place to put these?**
 

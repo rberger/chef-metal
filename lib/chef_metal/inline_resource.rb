@@ -32,7 +32,7 @@ module ChefMetal
       resource.params = @params
       # Determine whether this resource is being created in the context of an
       # enclosing Provider
-      resource.enclosing_provider =
+      resource.current_provider =
         action_handler.is_a?(Chef::Provider) ? action_handler : nil
       # Evaluate resource attribute DSL
       resource.instance_eval(&block) if block

@@ -22,7 +22,7 @@
 - Fix `machine_execute` resource (@irvingpop)
 - Fix `machine :converge` action (thanks @double-z)
 - Make chef-client timeout longer by default (2 hours)
-- Make chef_client_timeout a configurable option for all convergence strategies and provisioner_options
+- Make chef_client_timeout a configurable option for all convergence strategies and machine_options
 - Add `metal cp` command
 
 ## 0.8.2 (4/9/2014)
@@ -64,7 +64,7 @@
     - provider.cookbook_name -> provider.debug_name
   * Convergence strategy: delete_chef_objects() -> cleanup_convergence()
 * Ability to get back to a machine from a node (another Provisioner interface change) (doubt@getchef.com):
-  * Provisioners must create a file named `chef_metal/provisioner_init/<scheme>_init.rb`.  It will be required when a node is encountered with that scheme.  It should call ChefMetal.add_registered_provisioner_class(<scheme>, <provisioner class name>).  For the provisioner_url `fog:AWS:21348723432`, the scheme is "fog" and the file is `chef_metalprovisioner_init/fog_init.rb`.  It should call `ChefMetal.add_registered_provisioner_class('fog', ChefMetal::Provisioner::FogProvisioner)`.
+  * Provisioners must create a file named `chef_metal/driver_init/<scheme>_init.rb`.  It will be required when a node is encountered with that scheme.  It should call ChefMetal.add_registered_driver_class(<scheme>, <provisioner class name>).  For the driver_url `fog:AWS:21348723432`, the scheme is "fog" and the file is `chef_metaldriver_init/fog_init.rb`.  It should call `ChefMetal.add_registered_driver_class('fog', ChefMetal::Provisioner::FogProvisioner)`.
   * Provisioner classes must implement the class method `inflate(node)`, which should create a Provisioner instance appropriate to the given `node` (generally by looking at `node['normal']['provisioner_output']`)
 * New `NoConverge` convergence strategy that creates a node but does not install Chef or converge.
 * Support for machine_file `group`, `owner` and `mode` attributes (@irvingpop)

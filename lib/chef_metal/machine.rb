@@ -1,10 +1,15 @@
 module ChefMetal
   class Machine
-    def initialize(node)
-      @node = node
+    def initialize(spec)
+      @spec = spec
     end
 
-    attr_reader :node
+    # MachineSpec object associated with this machine
+    attr_reader :spec
+
+    def node
+      spec.node
+    end
 
     # Sets up everything necessary for convergence to happen on the machine.
     # The node MUST be saved as part of this procedure.  Other than that,

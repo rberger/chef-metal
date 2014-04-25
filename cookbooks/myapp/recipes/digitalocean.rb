@@ -1,4 +1,4 @@
-require 'chef_metal/fog'
+require 'chef_metal_fog'
 
 api_key = ENV['DIGITALOCEAN_API_KEY']
 client_id = ENV['DIGITALOCEAN_CLIENT_ID']
@@ -6,7 +6,7 @@ ec2testdir = File.expand_path('~/ec2test')
 
 directory ec2testdir
 
-with_fog_provisioner :provider => 'DigitalOcean',
+with_fog_driver :provider => 'DigitalOcean',
   :digitalocean_api_key => api_key,
   :digitalocean_client_id => client_id
 
