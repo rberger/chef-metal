@@ -59,7 +59,7 @@ Drivers are uniquely identifiable by their URL.  A driver URL consists of a sche
 
 - In a recipe using with_driver:
 ```ruby
-with_driver 'fog:AWS:jkeiser' # the "jkeiser" profile from
+with_driver 'fog:AWS:jkeiser' # the "jkeiser" profile from ~/.aws/config
 machine 'web' do
   recipe 'apache'
 end
